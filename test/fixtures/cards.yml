@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+bonjour:
+  deck: french
+  front: Bonjour
+  back: Hello
+  position: 1
+
+revolution:
+  deck: history
+  front: In which year did the French Revolution begin?
+  back: 1789
+  position: 1

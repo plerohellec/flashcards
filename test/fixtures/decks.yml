@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+french:
+  name: French Basics
+  description: Common French vocabulary
+
+history:
+  name: History
+  description: Short historical facts
