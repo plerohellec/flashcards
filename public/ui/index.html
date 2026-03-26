@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flashcards</title>
+  <style>
+    :root {
+      --bg: #f3efe5;
+      --bg-accent: #d7e8d4;
+      --card: rgba(255, 253, 248, 0.92);
+      --card-strong: #fffdf7;
+      --muted: #5e5a52;
+      --text: #1f1c18;
+      --line: rgba(74, 65, 53, 0.12);
+      --soft: #efe7d6;
+      --green: #276749;
+      --red: #b2412d;
+      --gold: #b6822b;
+      --shadow: 0 18px 50px rgba(62, 47, 27, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.7), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(215,232,212,0.85), transparent 28%),
+        linear-gradient(160deg, var(--bg), #f8f4eb 52%, #e8e1d2 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    .hidden { display: none !important; }
+    .authShell {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .authCard {
+      width: min(100%, 460px);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.65);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      backdrop-filter: blur(10px);
+    }
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      font-family: "Trebuchet MS", sans-serif;
+    }
+    .top {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+    .sub { color: var(--muted); margin: 0; }
+    .btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+    button,
+    input,
+    select {
+      border: 1px solid var(--line);
+      background: var(--card-strong);
+      border-radius: 16px;
+      padding: 11px 14px;
+      font-size: 15px;
+      color: var(--text);
+      font-family: "Trebuchet MS", sans-serif;
+    }
+    button {
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(62, 47, 27, 0.08);
+    }
+    button.primary {
+      background: #28433a;
+      color: white;
+      border-color: #28433a;
+    }
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    label {
+      display: block;
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field { margin-bottom: 14px; }
+    .authError,
+    .banner {
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 14px;
+      margin-bottom: 14px;
+      font-family: "Trebuchet MS", sans-serif;
+    }
+    .authError {
+      color: var(--red);
+      background: rgba(178, 65, 45, 0.08);
+      border: 1px solid rgba(178, 65, 45, 0.18);
+    }
+    .banner {
+      color: #704f12;
+      background: rgba(182, 130, 43, 0.12);
+      border: 1px solid rgba(182, 130, 43, 0.18);
+    }
+    .metaRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+    .deckPicker {
+      min-width: 240px;
+    }
+    .grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1.4fr 0.9fr;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.7);
+      backdrop-filter: blur(8px);
+    }
+    .cardHeader {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .badge {
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .prompt {
+      background: var(--soft);
+      border-radius: 22px;
+      padding: 18px;
+      font-size: 22px;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      min-height: 126px;
+      display: flex;
+      align-items: center;
+    }
+    .answerBox {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .answer {
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+    .status {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .green { color: var(--green); }
+    .red { color: var(--red); }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .stat {
+      background: var(--soft);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .stat .n {
+      font-size: 28px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .progressOuter {
+      height: 12px;
+      background: var(--soft);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progressInner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #28433a, #8d6a2f);
+      transition: width .2s ease;
+    }
+    .smallrow {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .toughList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toughItem {
+      background: var(--soft);
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .toughMeta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .emptyState {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      padding: 8px 0;
+    }
+    .loadingText {
+      color: var(--muted);
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: 14px;
+    }
+    @media (max-width: 850px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 26px; }
+      .prompt, .answer { font-size: 20px; }
+      .authCard { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="authShell" id="authSection">
+    <div class="authCard">
+      <div class="eyebrow">Flashcards API</div>
+      <h1>Sign in to study</h1>
+      <p class="sub">Enter your username and password. The app derives the API token as username-password and validates it against the backend.</p>
+      <div id="authError" class="authError hidden"></div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="usernameInput">Username</label>
+          <input id="usernameInput" name="username" type="text" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="passwordInput">Password</label>
+          <input id="passwordInput" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <div class="btnrow">
+          <button class="primary" id="loginBtn" type="submit">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <div class="wrap hidden" id="appSection">
+    <div class="top">
+      <div>
+        <div class="eyebrow">Study Decks</div>
+        <h1>Flashcards</h1>
+        <p class="sub">All cards, decks, and review history are loaded from the API.</p>
+      </div>
+      <div class="metaRow">
+        <div class="deckPicker">
+          <label for="deckSelect">Deck</label>
+          <select id="deckSelect"></select>
+        </div>
+        <div class="btnrow">
+          <button id="shuffleBtn">Shuffle</button>
+          <button id="resetBtn">Clear session counters</button>
+          <button id="logoutBtn">Log out</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="appBanner" class="banner hidden"></div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <div id="cardTitle" style="font-size:22px;font-weight:700;"></div>
+            <div id="deckDescription" style="color:var(--muted);font-size:14px;margin-top:4px;"></div>
+          </div>
+          <div class="badge" id="perCardStats"></div>
+        </div>
+
+        <div class="prompt" id="englishText"></div>
+
+        <div class="btnrow">
+          <button class="primary" id="showBtn">Show answer</button>
+          <button id="hideBtn" class="hidden">Hide answer</button>
+          <button class="primary" id="rightBtn" disabled>I got it right</button>
+          <button id="wrongBtn" disabled>I got it wrong</button>
+          <button id="nextBtn">Next</button>
+        </div>
+
+        <div class="answerBox hidden" id="answerBox">
+          <div class="status" id="statusText">Answer revealed</div>
+
+          <div class="label">Back</div>
+          <div class="answer" id="spanishText"></div>
+
+          <div class="label">Position</div>
+          <div id="notesText"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card">
+          <div style="font-size:22px;font-weight:700;margin-bottom:14px;">Session stats</div>
+          <div class="stats">
+            <div class="stat">
+              <div style="color:var(--muted);font-size:14px;">Right</div>
+              <div class="n" id="sessionRight">0</div>
+            </div>
+            <div class="stat">
+              <div style="color:var(--muted);font-size:14px;">Wrong</div>
+              <div class="n" id="sessionWrong">0</div>
+            </div>
+            <div class="stat">
+              <div style="color:var(--muted);font-size:14px;">Accuracy</div>
+              <div class="n" id="accuracy">0%</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;">
+            <div class="smallrow">
+              <span>Accuracy progress</span>
+              <span id="accuracy2">0%</span>
+            </div>
+            <div class="progressOuter">
+              <div class="progressInner" id="progressBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:22px;font-weight:700;margin-bottom:14px;">Toughest cards</div>
+          <div class="toughList" id="toughList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOKEN_KEY = "flashcards.apiToken";
+    const DECK_KEY = "flashcards.deckId";
+    const USERNAME_KEY = "flashcards.username";
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    const state = {
+      apiToken: "",
+      decks: [],
+      selectedDeckId: null,
+      cards: [],
+      reviewsByCardId: {},
+      order: [],
+      index: 0,
+      revealed: false,
+      sessionRight: 0,
+      sessionWrong: 0,
+      lastResult: null,
+      loadingDeck: false,
+      promptStartedAt: Date.now(),
+      appMessage: "",
+    };
+
+    const els = {
+      authSection: document.getElementById("authSection"),
+      appSection: document.getElementById("appSection"),
+      loginForm: document.getElementById("loginForm"),
+      usernameInput: document.getElementById("usernameInput"),
+      passwordInput: document.getElementById("passwordInput"),
+      loginBtn: document.getElementById("loginBtn"),
+      authError: document.getElementById("authError"),
+      appBanner: document.getElementById("appBanner"),
+      deckSelect: document.getElementById("deckSelect"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      cardTitle: document.getElementById("cardTitle"),
+      deckDescription: document.getElementById("deckDescription"),
+      perCardStats: document.getElementById("perCardStats"),
+      englishText: document.getElementById("englishText"),
+      showBtn: document.getElementById("showBtn"),
+      hideBtn: document.getElementById("hideBtn"),
+      rightBtn: document.getElementById("rightBtn"),
+      wrongBtn: document.getElementById("wrongBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      answerBox: document.getElementById("answerBox"),
+      statusText: document.getElementById("statusText"),
+      spanishText: document.getElementById("spanishText"),
+      notesText: document.getElementById("notesText"),
+      sessionRight: document.getElementById("sessionRight"),
+      sessionWrong: document.getElementById("sessionWrong"),
+      accuracy: document.getElementById("accuracy"),
+      accuracy2: document.getElementById("accuracy2"),
+      progressBar: document.getElementById("progressBar"),
+      toughList: document.getElementById("toughList"),
+      shuffleBtn: document.getElementById("shuffleBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+    };
+
+    function setAuthError(message) {
+      els.authError.textContent = message;
+      els.authError.classList.toggle("hidden", !message);
+    }
+
+    function setAppMessage(message) {
+      state.appMessage = message;
+      els.appBanner.textContent = message;
+      els.appBanner.classList.toggle("hidden", !message);
+    }
+
+    function showApp(isVisible) {
+      els.authSection.classList.toggle("hidden", isVisible);
+      els.appSection.classList.toggle("hidden", !isVisible);
+    }
+
+    function storeAuth(token, username) {
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(USERNAME_KEY, username);
+      state.apiToken = token;
+    }
+
+    function clearAuth() {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USERNAME_KEY);
+      localStorage.removeItem(DECK_KEY);
+      state.apiToken = "";
+    }
+
+    async function apiFetch(path, options = {}) {
+      const headers = new Headers(options.headers || {});
+      headers.set("Authorization", `Bearer ${state.apiToken}`);
+      if (options.body && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+      }
+
+      const response = await fetch(path, { ...options, headers });
+      if (response.status === 401) {
+        clearAuth();
+        showApp(false);
+        setAuthError("The API token is no longer valid.");
+        throw new Error("Unauthorized");
+      }
+
+      if (!response.ok) {
+        let message = `Request failed with status ${response.status}`;
+        try {
+          const payload = await response.json();
+          message = payload.error || (payload.errors && payload.errors.join(", ")) || message;
+        } catch (_error) {
+          // Keep the status-based fallback when the response has no JSON body.
+        }
+        throw new Error(message);
+      }
+
+      if (response.status === 204) {
+        return null;
+      }
+
+      return response.json();
+    }
+
+    function reviewStatsFor(cardId) {
+      const reviews = state.reviewsByCardId[cardId] || [];
+      return reviews.reduce((stats, review) => {
+        if (review.outcome === "good" || review.outcome === "easy") stats.right += 1;
+        if (review.outcome === "again" || review.outcome === "hard") stats.wrong += 1;
+        return stats;
+      }, { right: 0, wrong: 0 });
+    }
+
+    function currentCard() {
+      const id = state.order[state.index] ?? state.order[0];
+      return state.cards.find(card => card.id === id) || null;
+    }
+
+    function currentDeck() {
+      return state.decks.find(deck => deck.id === state.selectedDeckId) || null;
+    }
+
+    function markPromptStart() {
+      state.promptStartedAt = Date.now();
+    }
+
+    function renderDeckOptions() {
+      els.deckSelect.innerHTML = "";
+
+      if (!state.decks.length) {
+        const option = document.createElement("option");
+        option.textContent = "No decks available";
+        option.value = "";
+        els.deckSelect.appendChild(option);
+        els.deckSelect.disabled = true;
+        return;
+      }
+
+      els.deckSelect.disabled = false;
+      state.decks.forEach(deck => {
+        const option = document.createElement("option");
+        option.value = String(deck.id);
+        option.textContent = deck.name;
+        option.selected = deck.id === state.selectedDeckId;
+        els.deckSelect.appendChild(option);
+      });
+    }
+
+    function renderToughest() {
+      els.toughList.innerHTML = "";
+
+      if (!state.cards.length) {
+        els.toughList.innerHTML = '<div class="emptyState">Select a deck with cards to begin studying.</div>';
+        return;
+      }
+
+      const toughest = [...state.cards]
+        .sort((left, right) => {
+          const leftStats = reviewStatsFor(left.id);
+          const rightStats = reviewStatsFor(right.id);
+          return rightStats.wrong - leftStats.wrong || leftStats.right - rightStats.right || left.id - right.id;
+        })
+        .slice(0, 5);
+
+      toughest.forEach(card => {
+        const stats = reviewStatsFor(card.id);
+        const div = document.createElement("div");
+        div.className = "toughItem";
+        const front = document.createElement("div");
+        front.textContent = card.front;
+        const meta = document.createElement("div");
+        meta.className = "toughMeta";
+        meta.textContent = `${stats.right} right • ${stats.wrong} wrong`;
+        div.append(front, meta);
+        els.toughList.appendChild(div);
+      });
+    }
+
+    function render() {
+      const card = currentCard();
+      const deck = currentDeck();
+      const total = state.sessionRight + state.sessionWrong;
+      const accuracy = total ? Math.round((state.sessionRight / total) * 100) : 0;
+      const cardStats = card ? reviewStatsFor(card.id) : { right: 0, wrong: 0 };
+      const hasCards = Boolean(card);
+
+      els.cardTitle.textContent = hasCards
+        ? `Card ${state.index + 1} of ${state.order.length}`
+        : state.loadingDeck ? "Loading deck..." : "No cards in this deck";
+      els.deckDescription.textContent = deck && deck.description ? deck.description : "Study cards from the selected deck.";
+      els.perCardStats.textContent = hasCards
+        ? `${cardStats.right} right / ${cardStats.wrong} wrong`
+        : "No review data yet";
+      if (hasCards) {
+        els.englishText.textContent = card.front;
+      } else {
+        els.englishText.innerHTML = "";
+        const emptyState = document.createElement("div");
+        emptyState.className = "emptyState";
+        emptyState.textContent = state.loadingDeck
+          ? "Fetching cards and review history from the API."
+          : "This deck does not have any cards yet.";
+        els.englishText.appendChild(emptyState);
+      }
+      els.spanishText.textContent = hasCards ? card.back : "";
+      els.notesText.textContent = hasCards && card.position != null ? `Card position: ${card.position}` : "No position set.";
+
+      els.answerBox.classList.toggle("hidden", !state.revealed || !hasCards);
+      els.showBtn.classList.toggle("hidden", state.revealed || !hasCards);
+      els.hideBtn.classList.toggle("hidden", !state.revealed || !hasCards);
+      els.rightBtn.disabled = !state.revealed || state.lastResult !== null || !hasCards;
+      els.wrongBtn.disabled = !state.revealed || state.lastResult !== null || !hasCards;
+      els.showBtn.disabled = !hasCards;
+      els.hideBtn.disabled = !hasCards;
+      els.nextBtn.disabled = !hasCards;
+      els.shuffleBtn.disabled = state.order.length < 2;
+
+      els.sessionRight.textContent = String(state.sessionRight);
+      els.sessionWrong.textContent = String(state.sessionWrong);
+      els.accuracy.textContent = `${accuracy}%`;
+      els.accuracy2.textContent = `${accuracy}%`;
+      els.progressBar.style.width = `${accuracy}%`;
+
+      els.statusText.className = "status";
+      if (state.lastResult === "right") {
+        els.statusText.textContent = "Marked correct";
+        els.statusText.classList.add("green");
+      } else if (state.lastResult === "wrong") {
+        els.statusText.textContent = "Marked wrong";
+        els.statusText.classList.add("red");
+      } else {
+        els.statusText.textContent = "Answer revealed";
+      }
+
+      renderToughest();
+    }
+
+    async function loadDeck(deckId) {
+      if (!deckId) {
+        state.selectedDeckId = null;
+        state.cards = [];
+        state.reviewsByCardId = {};
+        state.order = [];
+        state.index = 0;
+        state.sessionRight = 0;
+        state.sessionWrong = 0;
+        state.revealed = false;
+        state.lastResult = null;
+        state.loadingDeck = false;
+        renderDeckOptions();
+        render();
+        return;
+      }
+
+      state.loadingDeck = true;
+      state.selectedDeckId = Number(deckId);
+      localStorage.setItem(DECK_KEY, String(deckId));
+      state.cards = [];
+      state.reviewsByCardId = {};
+      state.order = [];
+      state.index = 0;
+      state.sessionRight = 0;
+      state.sessionWrong = 0;
+      state.revealed = false;
+      state.lastResult = null;
+      renderDeckOptions();
+      render();
+
+      try {
+        const cards = await apiFetch(`/decks/${deckId}/cards`);
+        const reviews = await Promise.all(cards.map(card => apiFetch(`/cards/${card.id}/reviews`)));
+        state.cards = cards;
+        state.reviewsByCardId = cards.reduce((map, card, index) => {
+          map[card.id] = reviews[index];
+          return map;
+        }, {});
+        state.order = shuffle(cards.map(card => card.id));
+        state.index = 0;
+        state.revealed = false;
+        state.lastResult = null;
+        markPromptStart();
+        setAppMessage("");
+      } catch (error) {
+        state.cards = [];
+        state.reviewsByCardId = {};
+        state.order = [];
+        setAppMessage(error.message);
+      } finally {
+        state.loadingDeck = false;
+        render();
+      }
+    }
+
+    async function markCard(result) {
+      const card = currentCard();
+      if (!card) return;
+
+      const outcome = result === "right" ? "good" : "again";
+      const review = await apiFetch(`/cards/${card.id}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({
+          card_review: {
+            outcome,
+            reviewed_at: new Date().toISOString(),
+            response_time_ms: Math.max(Date.now() - state.promptStartedAt, 0),
+          },
+        }),
+      });
+
+      const existingReviews = state.reviewsByCardId[card.id] || [];
+      state.reviewsByCardId[card.id] = [review, ...existingReviews];
+      if (result === "right") state.sessionRight += 1;
+      if (result === "wrong") state.sessionWrong += 1;
+      state.lastResult = result;
+      setAppMessage("");
+      render();
+    }
+
+    function nextCard() {
+      if (!state.order.length) return;
+
+      state.revealed = false;
+      state.lastResult = null;
+      state.index = (state.index + 1) % state.order.length;
+      markPromptStart();
+      render();
+    }
+
+    function reshuffle() {
+      state.order = shuffle(state.order);
+      state.index = 0;
+      state.revealed = false;
+      state.lastResult = null;
+      markPromptStart();
+      render();
+    }
+
+    function clearSessionCounters() {
+      state.sessionRight = 0;
+      state.sessionWrong = 0;
+      state.lastResult = null;
+      render();
+    }
+
+    async function initializeApp(token, username) {
+      state.apiToken = token;
+      setAuthError("");
+      els.loginBtn.disabled = true;
+
+      try {
+        const decks = await apiFetch("/decks");
+        state.decks = decks;
+        const savedDeckId = Number(localStorage.getItem(DECK_KEY));
+        const initialDeck = decks.find(deck => deck.id === savedDeckId) || decks[0] || null;
+        state.selectedDeckId = initialDeck ? initialDeck.id : null;
+        storeAuth(token, username);
+        renderDeckOptions();
+        showApp(true);
+        await loadDeck(state.selectedDeckId);
+      } catch (error) {
+        clearAuth();
+        showApp(false);
+        setAuthError(error.message === "Unauthorized" ? "The derived API token is invalid." : error.message);
+      } finally {
+        els.loginBtn.disabled = false;
+      }
+    }
+
+    function logout() {
+      clearAuth();
+      state.decks = [];
+      state.selectedDeckId = null;
+      state.cards = [];
+      state.reviewsByCardId = {};
+      state.order = [];
+      state.index = 0;
+      state.revealed = false;
+      state.sessionRight = 0;
+      state.sessionWrong = 0;
+      state.lastResult = null;
+      state.loadingDeck = false;
+      setAppMessage("");
+      renderDeckOptions();
+      render();
+      showApp(false);
+    }
+
+    els.loginForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const username = els.usernameInput.value.trim();
+      const password = els.passwordInput.value;
+
+      if (!username || !password) {
+        setAuthError("Username and password are required.");
+        return;
+      }
+
+      const token = `${username}-${password}`;
+      await initializeApp(token, username);
+      els.passwordInput.value = "";
+    });
+
+    els.deckSelect.addEventListener("change", async event => {
+      state.sessionRight = 0;
+      state.sessionWrong = 0;
+      await loadDeck(event.target.value);
+    });
+
+    els.showBtn.addEventListener("click", () => {
+      state.revealed = true;
+      render();
+    });
+
+    els.hideBtn.addEventListener("click", () => {
+      state.revealed = false;
+      render();
+    });
+
+    els.rightBtn.addEventListener("click", async () => {
+      try {
+        await markCard("right");
+      } catch (error) {
+        setAppMessage(error.message);
+      }
+    });
+
+    els.wrongBtn.addEventListener("click", async () => {
+      try {
+        await markCard("wrong");
+      } catch (error) {
+        setAppMessage(error.message);
+      }
+    });
+
+    els.nextBtn.addEventListener("click", nextCard);
+    els.shuffleBtn.addEventListener("click", reshuffle);
+    els.resetBtn.addEventListener("click", clearSessionCounters);
+    els.logoutBtn.addEventListener("click", logout);
+
+    const rememberedUsername = localStorage.getItem(USERNAME_KEY) || "";
+    const rememberedToken = localStorage.getItem(TOKEN_KEY) || "";
+    els.usernameInput.value = rememberedUsername;
+
+    renderDeckOptions();
+    render();
+
+    if (rememberedToken) {
+      initializeApp(rememberedToken, rememberedUsername);
+    }
+  </script>
+</body>
+</html>
