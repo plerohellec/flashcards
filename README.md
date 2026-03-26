@@ -51,6 +51,17 @@ Example:
 export FLASHCARDS_API_TOKEN=your-real-token
 ```
 
+## Dotenv
+
+Local development can use a root `.env` file, which `dotenv-rails` loads automatically in development and test. A committed template lives at `.env.example`.
+
+Example `.env` contents:
+
+```bash
+FLASHCARDS_API_TOKEN=flashcards-api-token
+FLASHCARDS_FQDN=some.fqdn.domain
+```
+
 ## API Overview
 
 ### Health
