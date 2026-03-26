@@ -331,6 +331,7 @@
           <button id="hideBtn" class="hidden">Hide answer</button>
           <button class="primary" id="rightBtn" disabled>I got it right</button>
           <button id="wrongBtn" disabled>I got it wrong</button>
+          <button id="deleteBtn" disabled>Delete card</button>
           <button id="nextBtn">Next</button>
         </div>
 
@@ -431,6 +432,7 @@
       hideBtn: document.getElementById("hideBtn"),
       rightBtn: document.getElementById("rightBtn"),
       wrongBtn: document.getElementById("wrongBtn"),
+      deleteBtn: document.getElementById("deleteBtn"),
       nextBtn: document.getElementById("nextBtn"),
       answerBox: document.getElementById("answerBox"),
       statusText: document.getElementById("statusText"),
@@ -616,6 +618,7 @@
       els.hideBtn.classList.toggle("hidden", !state.revealed || !hasCards);
       els.rightBtn.disabled = !state.revealed || state.lastResult !== null || !hasCards;
       els.wrongBtn.disabled = !state.revealed || state.lastResult !== null || !hasCards;
+      els.deleteBtn.disabled = !hasCards;
       els.showBtn.disabled = !hasCards;
       els.hideBtn.disabled = !hasCards;
       els.nextBtn.disabled = !hasCards;
@@ -719,6 +722,28 @@
       if (result === "wrong") state.sessionWrong += 1;
       state.lastResult = result;
       setAppMessage("");
+      render();
+    }
+
+    async function deleteCurrentCard() {
+      const card = currentCard();
+      if (!card) return;
+
+      const confirmed = window.confirm(`Delete this card?\n\n${card.front}`);
+      if (!confirmed) return;
+
+      await apiFetch(`/cards/${card.id}`, { method: "DELETE" });
+
+      state.cards = state.cards.filter(existingCard => existingCard.id !== card.id);
+      delete state.reviewsByCardId[card.id];
+      state.order = state.order.filter(cardId => cardId !== card.id);
+      if (state.index >= state.order.length) {
+        state.index = 0;
+      }
+      state.revealed = false;
+      state.lastResult = null;
+      markPromptStart();
+      setAppMessage("Card deleted.");
       render();
     }
 
@@ -833,6 +858,14 @@
     els.wrongBtn.addEventListener("click", async () => {
       try {
         await markCard("wrong");
+      } catch (error) {
+        setAppMessage(error.message);
+      }
+    });
+
+    els.deleteBtn.addEventListener("click", async () => {
+      try {
+        await deleteCurrentCard();
       } catch (error) {
         setAppMessage(error.message);
       }
