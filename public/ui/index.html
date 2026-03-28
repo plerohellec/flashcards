@@ -6,18 +6,18 @@
   <title>Flashcards</title>
   <style>
     :root {
-      --bg: #f3efe5;
-      --bg-accent: #d7e8d4;
-      --card: rgba(255, 253, 248, 0.92);
-      --card-strong: #fffdf7;
-      --muted: #5e5a52;
-      --text: #1f1c18;
-      --line: rgba(74, 65, 53, 0.12);
-      --soft: #efe7d6;
-      --green: #276749;
+      --bg: #eaf1fb;
+      --bg-accent: #d6e4f8;
+      --card: rgba(250, 253, 255, 0.92);
+      --card-strong: #fdfefe;
+      --muted: #586579;
+      --text: #162132;
+      --line: rgba(54, 78, 112, 0.14);
+      --soft: #dfeafb;
+      --green: #2d5f96;
       --red: #b2412d;
-      --gold: #b6822b;
-      --shadow: 0 18px 50px rgba(62, 47, 27, 0.12);
+      --gold: #4e79b7;
+      --shadow: 0 18px 50px rgba(34, 54, 90, 0.12);
     }
     * { box-sizing: border-box; }
     body {
@@ -25,8 +25,8 @@
       font-family: Georgia, "Times New Roman", serif;
       background:
         radial-gradient(circle at top left, rgba(255,255,255,0.7), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(215,232,212,0.85), transparent 28%),
-        linear-gradient(160deg, var(--bg), #f8f4eb 52%, #e8e1d2 100%);
+        radial-gradient(circle at bottom right, rgba(214,228,248,0.85), transparent 28%),
+        linear-gradient(160deg, var(--bg), #f3f8ff 52%, #dde8f7 100%);
       color: var(--text);
       min-height: 100vh;
     }
@@ -46,7 +46,7 @@
       width: min(100%, 460px);
       background: var(--card);
       border: 1px solid rgba(255,255,255,0.65);
-      border-radius: 28px;
+      border-radius: 14px;
       box-shadow: var(--shadow);
       padding: 28px;
       backdrop-filter: blur(10px);
@@ -80,7 +80,7 @@
     select {
       border: 1px solid var(--line);
       background: var(--card-strong);
-      border-radius: 16px;
+      border-radius: 8px;
       padding: 11px 14px;
       font-size: 15px;
       color: var(--text);
@@ -92,12 +92,12 @@
     }
     button:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 10px 18px rgba(62, 47, 27, 0.08);
+      box-shadow: 0 10px 18px rgba(34, 54, 90, 0.08);
     }
     button.primary {
-      background: #28433a;
+      background: #315f96;
       color: white;
-      border-color: #28433a;
+      border-color: #315f96;
     }
     button:disabled {
       opacity: 0.45;
@@ -113,7 +113,7 @@
     .field { margin-bottom: 14px; }
     .authError,
     .banner {
-      border-radius: 16px;
+      border-radius: 8px;
       padding: 12px 14px;
       font-size: 14px;
       margin-bottom: 14px;
@@ -125,9 +125,9 @@
       border: 1px solid rgba(178, 65, 45, 0.18);
     }
     .banner {
-      color: #704f12;
-      background: rgba(182, 130, 43, 0.12);
-      border: 1px solid rgba(182, 130, 43, 0.18);
+      color: #315b8f;
+      background: rgba(78, 121, 183, 0.12);
+      border: 1px solid rgba(78, 121, 183, 0.18);
     }
     .metaRow {
       display: flex;
@@ -145,7 +145,7 @@
     }
     .card {
       background: var(--card);
-      border-radius: 24px;
+      border-radius: 12px;
       padding: 20px;
       box-shadow: var(--shadow);
       border: 1px solid rgba(255,255,255,0.7);
@@ -167,7 +167,7 @@
     }
     .prompt {
       background: var(--soft);
-      border-radius: 22px;
+      border-radius: 11px;
       padding: 18px;
       font-size: 22px;
       line-height: 1.45;
@@ -178,7 +178,7 @@
     }
     .answerBox {
       border: 1px solid var(--line);
-      border-radius: 22px;
+      border-radius: 11px;
       padding: 16px;
       margin-top: 14px;
     }
@@ -205,7 +205,7 @@
     }
     .stat {
       background: var(--soft);
-      border-radius: 18px;
+      border-radius: 9px;
       padding: 14px;
     }
     .stat .n {
@@ -223,7 +223,7 @@
     .progressInner {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #28433a, #8d6a2f);
+      background: linear-gradient(90deg, #315f96, #6d95cf);
       transition: width .2s ease;
     }
     .smallrow {
@@ -240,7 +240,7 @@
     }
     .toughItem {
       background: var(--soft);
-      border-radius: 18px;
+      border-radius: 9px;
       padding: 14px;
       font-size: 14px;
       line-height: 1.45;
@@ -720,7 +720,10 @@
       state.reviewsByCardId[card.id] = [review, ...existingReviews];
       if (result === "right") state.sessionRight += 1;
       if (result === "wrong") state.sessionWrong += 1;
-      state.lastResult = result;
+      state.revealed = false;
+      state.lastResult = null;
+      state.index = (state.index + 1) % state.order.length;
+      markPromptStart();
       setAppMessage("");
       render();
     }
