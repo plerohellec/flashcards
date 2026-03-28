@@ -341,6 +341,9 @@
           <div class="label">Back</div>
           <div class="answer" id="spanishText"></div>
 
+          <div class="label" id="explanationLabel">Explanation</div>
+          <div id="explanationText"></div>
+
           <div class="label">Position</div>
           <div id="notesText"></div>
         </div>
@@ -437,6 +440,8 @@
       answerBox: document.getElementById("answerBox"),
       statusText: document.getElementById("statusText"),
       spanishText: document.getElementById("spanishText"),
+      explanationLabel: document.getElementById("explanationLabel"),
+      explanationText: document.getElementById("explanationText"),
       notesText: document.getElementById("notesText"),
       sessionRight: document.getElementById("sessionRight"),
       sessionWrong: document.getElementById("sessionWrong"),
@@ -611,6 +616,10 @@
         els.englishText.appendChild(emptyState);
       }
       els.spanishText.textContent = hasCards ? card.back : "";
+      const explanation = hasCards ? (card.explanation || "").trim() : "";
+      els.explanationText.textContent = explanation;
+      els.explanationLabel.classList.toggle("hidden", !explanation);
+      els.explanationText.classList.toggle("hidden", !explanation);
       els.notesText.textContent = hasCards && card.position != null ? `Card position: ${card.position}` : "No position set.";
 
       els.answerBox.classList.toggle("hidden", !state.revealed || !hasCards);

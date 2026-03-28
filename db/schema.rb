@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_25_235320) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_120000) do
   create_table "card_reviews", force: :cascade do |t|
     t.integer "card_id", null: false
     t.datetime "created_at", null: false
@@ -25,6 +25,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_235320) do
     t.text "back"
     t.datetime "created_at", null: false
     t.integer "deck_id", null: false
+    t.text "explanation"
     t.text "front"
     t.integer "position"
     t.datetime "updated_at", null: false

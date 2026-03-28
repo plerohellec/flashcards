@@ -102,6 +102,7 @@ Create payload:
   "card": {
     "front": "Bonjour",
     "back": "Hello",
+    "explanation": "Standard French greeting used in both formal and informal contexts.",
     "position": 1
   }
 }
@@ -155,7 +156,7 @@ Examples:
 
 ```bash
 skill/scripts/create_deck.sh "French Basics" "Common vocabulary"
-skill/scripts/create_card.sh 1 "Bonjour" "Hello" 1
+skill/scripts/create_card.sh 1 "Bonjour" "Hello" "Standard French greeting used in both formal and informal contexts." 1
 skill/scripts/list_decks.sh
 skill/scripts/list_cards.sh 1
 skill/scripts/create_review.sh 1 good

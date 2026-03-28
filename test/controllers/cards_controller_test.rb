@@ -16,21 +16,23 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   test "creates a card for a deck" do
     assert_difference("Card.count", 1) do
       post deck_cards_url(@deck),
-        params: { card: { front: "Merci", back: "Thank you", position: 2 } }.to_json,
+        params: { card: { front: "Merci", back: "Thank you", explanation: "Used as a polite expression of gratitude.", position: 2 } }.to_json,
         headers: auth_headers
     end
 
     assert_response :created
     assert_equal @deck.id, json_response["deck_id"]
+    assert_equal "Used as a polite expression of gratitude.", json_response["explanation"]
   end
 
   test "updates a card" do
     patch card_url(@card),
-      params: { card: { back: "Hi" } }.to_json,
+      params: { card: { back: "Hi", explanation: "A more casual translation." } }.to_json,
       headers: auth_headers
 
     assert_response :success
     assert_equal "Hi", @card.reload.back
+    assert_equal "A more casual translation.", @card.reload.explanation
   end
 
   test "rejects invalid cards" do

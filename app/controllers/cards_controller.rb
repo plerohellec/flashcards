@@ -44,6 +44,6 @@ class CardsController < ApplicationController
   end
 
   def card_params
-    params.expect(card: %i[front back position])
+    params.expect(card: %i[front back explanation position])
   end
 end

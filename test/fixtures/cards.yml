@@ -4,10 +4,12 @@ bonjour:
   deck: french
   front: Bonjour
   back: Hello
+  explanation: Standard greeting in French.
   position: 1
 
 revolution:
   deck: history
   front: In which year did the French Revolution begin?
   back: 1789
+  explanation: The revolution began with the Estates-General crisis and the storming of the Bastille that year.
   position: 1

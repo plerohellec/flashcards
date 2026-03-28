@@ -13,25 +13,34 @@ if [[ -z "$api_token" ]]; then
 fi
 
 if [[ $# -lt 3 ]]; then
-  echo "Usage: $(basename "$0") DECK_ID FRONT BACK [POSITION]" >&2
+  echo "Usage: $(basename "$0") DECK_ID FRONT BACK [EXPLANATION] [POSITION]" >&2
   exit 1
 fi
 
 deck_id="$1"
 front="$2"
 back="$3"
-position="${4:-}"
+explanation="${4:-}"
+position="${5:-}"
 
 escaped_front="${front//\\/\\\\}"
 escaped_front="${escaped_front//\"/\\\"}"
 escaped_back="${back//\\/\\\\}"
 escaped_back="${escaped_back//\"/\\\"}"
+escaped_explanation="${explanation//\\/\\\\}"
+escaped_explanation="${escaped_explanation//\"/\\\"}"
+
+payload="{\"card\":{\"front\":\"$escaped_front\",\"back\":\"$escaped_back\""
+
+if [[ -n "$explanation" ]]; then
+  payload="$payload,\"explanation\":\"$escaped_explanation\""
+fi
 
 if [[ -n "$position" ]]; then
-  payload="{\"card\":{\"front\":\"$escaped_front\",\"back\":\"$escaped_back\",\"position\":$position}}"
-else
-  payload="{\"card\":{\"front\":\"$escaped_front\",\"back\":\"$escaped_back\"}}"
+  payload="$payload,\"position\":$position"
 fi
+
+payload="$payload}}"
 
 curl -sS -X POST "$base_url/decks/$deck_id/cards" \
   -H "Authorization: Bearer $api_token" \
